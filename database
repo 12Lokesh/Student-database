@@ -1,0 +1,88 @@
+-- Create Database
+CREATE DATABASE IF NOT EXISTS StudentDB;
+USE StudentDB;
+
+-- Create Students Table
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY AUTO_INCREMENT,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Gender ENUM('Male', 'Female', 'Other'),
+    DateOfBirth DATE,
+    Department VARCHAR(100),
+    Email VARCHAR(100) UNIQUE,
+    PhoneNumber VARCHAR(15)
+);
+
+-- Create Courses Table
+CREATE TABLE Courses (
+    CourseID INT PRIMARY KEY AUTO_INCREMENT,
+    CourseName VARCHAR(100) NOT NULL,
+    Department VARCHAR(100),
+    Credits INT
+);
+
+-- Create Enrollments Table
+CREATE TABLE Enrollments (
+    EnrollmentID INT PRIMARY KEY AUTO_INCREMENT,
+    StudentID INT,
+    CourseID INT,
+    EnrollmentDate DATE,
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+);
+
+-- Create Marks Table
+CREATE TABLE Marks (
+    MarkID INT PRIMARY KEY AUTO_INCREMENT,
+    EnrollmentID INT,
+    MarksObtained INT,
+    Grade CHAR(2),
+    FOREIGN KEY (EnrollmentID) REFERENCES Enrollments(EnrollmentID)
+);
+
+-- Insert Students
+INSERT INTO Students (FirstName, LastName, Gender, DateOfBirth, Department, Email, PhoneNumber) VALUES
+('John', 'Doe', 'Male', '2002-05-14', 'Computer Science', 'john.doe@example.com', '9876543210'),
+('Jane', 'Smith', 'Female', '2001-11-20', 'Electronics', 'jane.smith@example.com', '9876543211'),
+('Ali', 'Khan', 'Male', '2003-02-10', 'Mechanical', 'ali.khan@example.com', '9876543212');
+
+-- Insert Courses
+INSERT INTO Courses (CourseName, Department, Credits) VALUES
+('Data Structures', 'Computer Science', 4),
+('Digital Circuits', 'Electronics', 3),
+('Thermodynamics', 'Mechanical', 4);
+
+-- Insert Enrollments
+INSERT INTO Enrollments (StudentID, CourseID, EnrollmentDate) VALUES
+(1, 1, '2024-07-01'),
+(2, 2, '2024-07-01'),
+(3, 3, '2024-07-01');
+
+-- Insert Marks
+INSERT INTO Marks (EnrollmentID, MarksObtained, Grade) VALUES
+(1, 85, 'A'),
+(2, 78, 'B'),
+(3, 90, 'A');
+
+-- Sample Query: Show Students with their Courses and Marks
+SELECT 
+    S.StudentID,
+    S.FirstName,
+    S.LastName,
+    C.CourseName,
+    M.MarksObtained,
+    M.Grade
+FROM Students S
+JOIN Enrollments E ON S.StudentID = E.StudentID
+JOIN Courses C ON E.CourseID = C.CourseID
+LEFT JOIN Marks M ON E.EnrollmentID = M.EnrollmentID;
+
+-- Sample Query: Average Marks per Course
+SELECT 
+    C.CourseName,
+    AVG(M.MarksObtained) AS AverageMarks
+FROM Courses C
+JOIN Enrollments E ON C.CourseID = E.CourseID
+JOIN Marks M ON E.EnrollmentID = M.EnrollmentID
+GROUP BY C.CourseName;
